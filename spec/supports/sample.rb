@@ -22,8 +22,10 @@ module Sample
   end
 
   class AllRequired < Base
-    def initialize(name:, gender:, job:, age:)
+    def initialize(*)
       super
+
+      raise 'required' if !@name || !@gender || !@job || !@age
     end
   end
 end
