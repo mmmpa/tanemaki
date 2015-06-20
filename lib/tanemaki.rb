@@ -99,7 +99,7 @@ module Tanemaki
           @scope.instance_eval do
             eval(v)
           end
-        rescue
+        rescue => e
           v
         end
       end
