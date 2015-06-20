@@ -8,8 +8,13 @@ module Tanemaki
     end
 
 
-    def ready(path)
-      Seeder.(Parser.(path))
+    def ready(path, options = {})
+      Seeder.(Parser.(path), {eval_scope: @eval_scope}.merge(options))
+    end
+
+
+    def default_eval_scope(eval_scope)
+      @eval_scope = eval_scope
     end
   end
 
@@ -40,15 +45,17 @@ module Tanemaki
     end
 
 
-    def initialize(named_csv, scope = nil, *evalable)
+    def initialize(named_csv, options = {})
       @named_csv = named_csv
-      @evalable = *evalable || []
-      @scope = scope
+      @evaluate = options[:evaluatable] || []
+      @eval_scope = options[:eval_scope]
+      @klass = options[:klass]
+      @method = options[:method] || :create
     end
 
 
-    def evalablize(scope = nil, *column_names)
-      Seeder.(@named_csv, scope, *column_names)
+    def evaluate(*column_names, eval_scope: nil)
+      Seeder.(@named_csv, eval_scope: eval_scope || @eval_scope, evaluatable: column_names)
     end
 
 
@@ -57,16 +64,16 @@ module Tanemaki
     end
 
 
-    def random(klass, method_name, &block)
+    def random(klass = nil, method_name = nil, &block)
       Seeder.(@named_csv.shuffle).seed(klass, method_name, &block)
     end
 
 
-    def seed(klass, method_name, &block)
+    def seed(klass = nil, method = nil, &block)
       @named_csv.map do |row|
-        readiness = evaled(row)
+        readiness = evaluated(row)
         begin
-          klass.send(method_name, **readiness)
+          (klass || @klass).send((method || @method), **readiness)
         rescue => e
           raise e unless block_given?
 
@@ -87,22 +94,31 @@ module Tanemaki
 
 
     private
-    def evaled(row)
-      return row if @evalable.size == 0
+    def evaluated(row)
+      return row if @evaluate.size == 0
 
       row.each_pair.each_with_object({}) do |(k, v), result|
-        next result[k] = v unless @evalable.include?(k)
+        next result[k] = v unless @evaluate.include?(k)
 
         result[k] = begin
-          return eval(v) unless @scope
+          return eval(v) unless @eval_scope
 
-          @scope.instance_eval do
+          @eval_scope.instance_eval do
             eval(v)
           end
-        rescue => e
+        rescue
           v
         end
       end
     end
   end
+end
+
+class Object
+  def tanemaki(path, options = {})
+    Tanemaki.(path, options.merge(klass: self))
+  end
+
+
+  alias :tnmk :tanemaki
 end

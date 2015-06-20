@@ -52,14 +52,29 @@ describe Tanemaki do
       include_examples 'seed'
     end
 
-    context 'evalablize column' do
-      let(:result) { seeder.evalablize(self, :age).seed(Sample::Normal, :new) }
-      let(:array) { [0, 1, 2, 3, 4] }
+    context 'evaluate column' do
+      context 'using scope' do
+        let(:result) { seeder.evaluate(:age, eval_scope: self).seed(Sample::Normal, :new) }
+        let(:array) { [0, 1, 2, 3, 4] }
 
-      include_examples 'seed'
+        include_examples 'seed'
 
-      it { expect(result.first.age).to eq(3) }
-      it { expect(result.last.age).to be_a(Fixnum) }
+        it { expect(result.first.age).to eq(3) }
+        it { expect(result.last.age).to be_a(Fixnum) }
+      end
+
+      context 'using default scope' do
+        let(:result) do
+          Tanemaki.default_eval_scope(self)
+          seeder.evaluate(:age).seed(Sample::Normal, :new)
+        end
+        let(:array) { [0, 1, 2, 3, 4] }
+
+        include_examples 'seed'
+
+        it { expect(result.first.age).to eq(3) }
+        it { expect(result.last.age).to be_a(Fixnum) }
+      end
     end
 
     context 'select' do
@@ -70,6 +85,13 @@ describe Tanemaki do
       it 'select only required, not raise exception' do
         expect { seeder.select(:name).seed(Sample::OnlyName, :new) }.not_to raise_exception
       end
+    end
+
+    context 'enchant class method' do
+      let(:seeder) { Sample::Normal.tanemaki("#{__dir__}/fixtures/seed.csv", method: :new) }
+      let(:result) { seeder.seed }
+
+      include_examples 'seed'
     end
   end
 end
