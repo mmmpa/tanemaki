@@ -83,7 +83,7 @@ AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name:
 ## create以外を使う
 ぼくはどちらかというと`create!`が好きなので
 ```ruby
-AreaCode.tanemaki('area_code.csv', method: :create!).select(:tiiki_code, :ken_name, :sityouson_name1, :sityouson_name3).seed
+AreaCode.tanemaki('area_code.csv', method: :create!).seed
 ```
 
 ## select
