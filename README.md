@@ -81,6 +81,7 @@ AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name:
 返り値は`create`の返り値の`Array`。
 
 * ## select
+
 CSVから必要なカラムのみ使います。
 ```ruby
 AreaCode.tanemaki('area_code.csv').select(:tiiki_code, :ken_name, :sityouson_name1, :sityouson_name3).seed
