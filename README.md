@@ -80,7 +80,7 @@ AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name:
 ```
 返り値は`create`の返り値の`Array`。
 
-* ## select
+## select
 
 CSVから必要なカラムのみ使います。
 ```ruby
@@ -91,7 +91,7 @@ AreaCode.tanemaki('area_code.csv').select(:tiiki_code, :ken_name, :sityouson_nam
 AreaCode.create({tiiki_code: 27102, ken_name: ,'大阪府', sityouson_name1: ,'大阪市', sityouson_name3: '都島区'})
 ```
 
-* ## evaluate
+## evaluate
 指定したカラムの値を式として評価します。
 インスタンス変数の参照先は`scope: self`などと設定します。`Tanemaki.default_eva_scope =self`なども可能です。
 （記述中）
