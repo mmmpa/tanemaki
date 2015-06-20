@@ -55,7 +55,7 @@ module Tanemaki
 
 
     def evaluate(*column_names, eval_scope: nil)
-      Seeder.(@named_csv, eval_scope: eval_scope || @eval_scope, evaluatable: column_names)
+      Seeder.(@named_csv, for_chain.merge(eval_scope: eval_scope || @eval_scope, evaluatable: column_names))
     end
 
 
@@ -65,7 +65,7 @@ module Tanemaki
 
 
     def random(klass = nil, method_name = nil, &block)
-      Seeder.(@named_csv.shuffle).seed(klass, method_name, &block)
+      Seeder.(@named_csv.shuffle, for_chain).seed(klass, method_name, &block)
     end
 
 
@@ -89,7 +89,7 @@ module Tanemaki
         column_names.each_with_object({}) do |name, new_row|
           new_row[name] = row[name]
         end
-      end)
+      end, for_chain)
     end
 
 
@@ -111,8 +111,19 @@ module Tanemaki
         end
       end
     end
+
+
+    def for_chain
+      {
+          evaluatable: @evaluate,
+          eval_scope: @eval_scope,
+          klass: @klass,
+          method: @method
+      }
+    end
   end
 end
+
 
 class Object
   def tanemaki(path, options = {})

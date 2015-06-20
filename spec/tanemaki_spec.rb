@@ -88,10 +88,34 @@ describe Tanemaki do
     end
 
     context 'enchant class method' do
-      let(:seeder) { Sample::Normal.tanemaki("#{__dir__}/fixtures/seed.csv", method: :new) }
-      let(:result) { seeder.seed }
+      context do
+        let(:seeder) { Sample::Normal.tanemaki("#{__dir__}/fixtures/seed.csv", method: :new) }
+        let(:result) { seeder.seed }
 
-      include_examples 'seed'
+        include_examples 'seed'
+      end
+
+      context 'chain (send local valuables)' do
+        let(:seeder) { Sample::Normal.tanemaki("#{__dir__}/fixtures/seed.csv", method: :new) }
+
+        context do
+          let(:result) { seeder.evaluate(:age, eval_scope: self).seed }
+
+          include_examples 'seed'
+        end
+
+        context do
+          let(:result) { seeder.select(:name, :age).seed }
+
+          include_examples 'seed'
+        end
+
+        context do
+          let(:result) { seeder.random }
+
+          include_examples 'seed'
+        end
+      end
     end
   end
 end
