@@ -13,7 +13,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'Seeding with CSV having named column.'
   spec.homepage      = 'http://mmmpa.net/'
   spec.license       = 'MIT'
-  
+
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }

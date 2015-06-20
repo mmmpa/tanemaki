@@ -14,6 +14,10 @@ module Tanemaki
 
 
     def default_eval_scope(eval_scope)
+      self.default_eval_scope = eval_scope
+    end
+
+    def default_eval_scope=(eval_scope)
       @eval_scope = eval_scope
     end
   end

@@ -5,7 +5,7 @@
 Tanemaki（たねまき）はRuby on Railsの`rake db:seed`で使われるseed.rbを整理するために書かれました。
 
 こうなっているのが
-```
+```ruby
 AreaCode.create([
   {ken_code: 27, sityouson_code: 0, tiiki_code: 27000, ken_name: ,'大阪府', sityouson_name1: , sityouson_name2: '', sityouson_name3: , yomigana: 'おおさかふ'},
   {ken_code: 27, sityouson_code: 100, tiiki_code: 27100, ken_name: ,'大阪府', sityouson_name1: ,'大阪市', sityouson_name2: '', sityouson_name3: , yomigana: 'おおさかし'},
@@ -17,7 +17,7 @@ AreaCode.create([
 ```
 
 用意したCSVファイルと
-```
+```csv
 ken_code,sityouson_code,tiiki_code,ken_name,sityouson_name1,sityouson_name2,sityouson_name3,yomigana
 27,0,27000,大阪府,,,,おおさかふ
 27,100,27100,大阪府,大阪市,,,おおさかし
@@ -27,40 +27,73 @@ ken_code,sityouson_code,tiiki_code,ken_name,sityouson_name1,sityouson_name2,sity
 27,128,27128,大阪府,大阪市,,中央区,ちゅうおうく
 ```
 
-```
+```ruby
 AreaCode.tanemaki(csv_path).seed
 ```
 
 になります。
 ## Installation
-
-Add this line to your application's Gemfile:
-
 ```ruby
-gem 'tanemaki'
+gem 'tanemaki', require: false
 ```
+    $ bundle install
+使う場所で
 
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install tanemaki
+    require 'tanemaki'
 
 ## Usage
 
-TODO: Write usage instructions here
+こういうmodelがあるとして
+```ruby
+pry(main)> AreaCode
+class AreaCode < ActiveRecord::Base {    
+                   :id => :integer,  
+             :ken_code => :integer,   
+       :sityouson_code => :integer, 
+           :tiiki_code => :integer,   
+             :ken_name => :string,   
+      :sityouson_name1 => :string,   
+      :sityouson_name2 => :string,   
+      :sityouson_name3 => :string,  
+             :yomigana => :string,  
+           :created_at => :datetime, 
+           :updated_at => :datetime  
+}                                    
+```
+`create`に必要なキーワード引数の**キーを一行目に書いたCSV**（例えば area_code.csv）を用意。
+```csv
+ken_code,sityouson_code,tiiki_code,ken_name,sityouson_name1,sityouson_name2,sityouson_name3,yomigana
+27,0,27000,大阪府,,,,おおさかふ
+27,100,27100,大阪府,大阪市,,,おおさかし
+27,102,27102,大阪府,大阪市,,都島区,みやこじまく
+27,103,27103,大阪府,大阪市,,福島区,ふくしまく
+# 略
+27,128,27128,大阪府,大阪市,,中央区,ちゅうおうく
+```
+ゴー。
+```ruby
+AreaCode.tanemaki('area_code.csv').seed
+```
+内部的には各行においてこのようなことが起こります。
+```ruby
+AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name: ,'大阪府', sityouson_name1: ,'大阪市', sityouson_name2: '', sityouson_name3: '都島区', yomigana: 'みやこじまく'})
+```
+返り値は`create`の返り値の`Array`。
 
-## Development
+* ## select
+CSVから必要なカラムのみ使います。
+```ruby
+AreaCode.tanemaki('area_code.csv').select(:tiiki_code, :ken_name, :sityouson_name1, :sityouson_name3).seed
+```
+内部的には各行においてこのようなことが起こります。
+```ruby
+AreaCode.create({tiiki_code: 27102, ken_name: ,'大阪府', sityouson_name1: ,'大阪市', sityouson_name3: '都島区'})
+```
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/tanemaki.
+* ## evaluate
+指定したカラムの値を式として評価します。
+インスタンス変数の参照先は`scope: self`などと設定します。`Tanemaki.default_eva_scope =self`なども可能です。
+（記述中）
 
 
 ## License
