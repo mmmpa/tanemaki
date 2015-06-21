@@ -6,6 +6,32 @@ describe Tanemaki do
     expect(Tanemaki::VERSION).not_to be nil
   end
 
+  shared_examples_for 'seed' do
+    it { expect(result).to be_a(Array) }
+    it { expect(result.size).to eq(7) }
+
+    it 'all result are instance' do
+      result.each do |seeded|
+        expect(seeded).to be_a(Sample::Normal)
+      end
+    end
+
+    context 'when raise exception' do
+      it 'no block, raise exception' do
+        expect { seeder.seed(Sample::AllRequired, :new) }.to raise_exception
+      end
+
+      it 'block given, rescue exception' do
+        result = seeder.seed(Sample::AllRequired, :new) do |e, row|
+          expect(e).to be_a(Exception)
+          expect(row.has_value?(:job)).to be_falsey
+        end
+
+        expect(result.size).to eq(5)
+      end
+    end
+  end
+
   describe do
     let(:seeder) { Tanemaki.("#{__dir__}/fixtures/seed.csv") }
 
@@ -15,30 +41,6 @@ describe Tanemaki do
       it { expect(seeder.named_csv.size).to eq(7) }
     end
 
-    shared_examples_for 'seed' do
-      it { expect(result).to be_a(Array) }
-      it { expect(result.size).to eq(7) }
-
-      it 'all result are instance' do
-        result.each do |seeded|
-          expect(seeded).to be_a(Sample::Normal)
-        end
-      end
-
-      context 'when raise exception' do
-        it 'no block, raise exception' do
-          expect { seeder.seed(Sample::AllRequired, :new) }.to raise_exception
-        end
-
-        it 'block given, rescue exception' do
-          result = seeder.seed(Sample::AllRequired, :new) do |row|
-            expect(row.has_value?(:job)).to be_falsey
-          end
-
-          expect(result.size).to eq(5)
-        end
-      end
-    end
 
     context 'seed' do
       let(:result) { seeder.seed(Sample::Normal, :new) }
@@ -114,6 +116,31 @@ describe Tanemaki do
           let(:result) { seeder.random }
 
           include_examples 'seed'
+        end
+      end
+    end
+  end
+
+  describe 'with nameless parameters' do
+    let(:seeder) { Tanemaki.("#{__dir__}/fixtures/nameless_seed.csv") }
+
+    context 'seed' do
+      let(:result) { seeder.seed(Sample::NamelessParam, :new) }
+
+      it 'all result are instance' do
+        result.each do |seeded|
+          expect(seeded).to be_a(Sample::NamelessParam)
+        end
+      end
+    end
+
+    context 'evaluate' do
+
+      let(:result) { seeder.evaluate(0).seed(Sample::NamelessParam, :new) }
+
+      it 'all result are instance' do
+        result.each do |seeded|
+          expect(seeded.forum).to be_a(Symbol)
         end
       end
     end

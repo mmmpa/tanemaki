@@ -1,0 +1,8 @@
+,name,gender,job,age,
+:super,o296sm,male,IT,array[3],2
+:bottom,raso,male,,54,6
+:bottom,ise,male,Novelist,2,333
+:bottom,uniq,female,Designer,16,8
+:super,kaedemaru,male,,46,12
+:bottom,moca,female,Comic Artist,6,1
+:super,mmmpa,male,Programer,rand(0..100),0
