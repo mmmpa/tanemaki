@@ -67,6 +67,19 @@ describe Tanemaki do
 
       context 'using default scope' do
         let(:result) do
+          Tanemaki.default_eval_scope(self)
+          seeder.evaluate(:age).seed(Sample::Normal, :new)
+        end
+        let(:array) { [0, 1, 2, 3, 4] }
+
+        include_examples 'seed'
+
+        it { expect(result.first.age).to eq(3) }
+        it { expect(result.last.age).to be_a(Fixnum) }
+      end
+
+      context 'using default scope =' do
+        let(:result) do
           Tanemaki.default_eval_scope = self
           seeder.evaluate(:age).seed(Sample::Normal, :new)
         end
