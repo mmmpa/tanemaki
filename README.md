@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/mmmpa/tanemaki.svg)](https://travis-ci.org/mmmpa/tanemaki)
-[![Coverage Status](https://coveralls.io/repos/mmmpa/tanemaki/badge.svg)](https://coveralls.io/r/mmmpa/tanemaki)
+[![Coverage Status](https://coveralls.io/repos/mmmpa/tanemaki/badge.svg?branch=master)](https://coveralls.io/r/mmmpa/tanemaki?branch=master)
 
 # Tanemaki
 
