@@ -61,7 +61,9 @@ class AreaCode < ActiveRecord::Base {
            :updated_at => :datetime  
 }                                    
 ```
+
 `create`に必要なキーワード引数の**キーを一行目に書いたCSV**（例えば area_code.csv）を用意。
+
 ```csv
 ken_code,sityouson_code,tiiki_code,ken_name,sityouson_name1,sityouson_name2,sityouson_name3,yomigana
 27,0,27000,大阪府,,,,おおさかふ
@@ -71,11 +73,15 @@ ken_code,sityouson_code,tiiki_code,ken_name,sityouson_name1,sityouson_name2,sity
 # 略
 27,128,27128,大阪府,大阪市,,中央区,ちゅうおうく
 ```
+
 ゴー。
+
 ```ruby
 AreaCode.tanemaki('area_code.csv').seed
 ```
+
 内部的には各行においてこのようなことが起こります。
+
 ```ruby
 AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name: ,'大阪府', sityouson_name1: ,'大阪市', sityouson_name2: '', sityouson_name3: '都島区', yomigana: 'みやこじまく'})
 ```
@@ -86,6 +92,27 @@ AreaCode.create({ken_code: 27, sityouson_code: 102, tiiki_code: 27102, ken_name:
 ```ruby
 AreaCode.tanemaki('area_code.csv', method: :create!).seed
 ```
+
+## 名前無し引数に使う
+
+こういうのです。
+
+    FactoryGirl.build(:user, :invalid, name: 'MMMPA', name_reading: 'ンンンパ')
+
+名前無し引数のカラムの名前を省いたfactory.csvを用意します。
+
+```csv
+,name,name_reading,
+:user,MMMPA,ンンンパ,:invalid
+:user,o296sm,おふくろさま,:valid
+```
+
+こうすると1列目（[0]）と4列目（[3]）は普通の引数としてメソッドに渡されます。カラムの位置にかかわらず、出現順に引数の頭に回されます。
+
+突然ですが`evaluate`に渡した名前のカラム、もしくは名前無しカラムのインデックスと一致するカラムは式として評価されます（この場合`Symbol`になる）。
+
+    FactoryGirl.tanemaki('factory.csv', method: :build).evaluate(0, 3).seed
+
 
 ## select
 

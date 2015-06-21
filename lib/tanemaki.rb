@@ -111,7 +111,7 @@ module Tanemaki
       Seeder.(@named_csv.map do |row|
         column_names.each_with_object({}) do |name, new_row|
           new_row[name] = row[name]
-        end
+        end.merge(namelass_parameter_array: row[:namelass_parameter_array])
       end, for_chain)
     end
 

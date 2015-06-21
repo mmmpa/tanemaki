@@ -149,7 +149,7 @@ describe Tanemaki do
 
     context 'evaluate' do
 
-      let(:result) { seeder.evaluate(0).seed(Sample::NamelessParam, :new) }
+      let(:result) { seeder.select(:name).evaluate(0).seed(Sample::NamelessParam, :new) }
 
       it 'all result are instance' do
         result.each do |seeded|
