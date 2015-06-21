@@ -17,6 +17,7 @@ module Tanemaki
       self.default_eval_scope = eval_scope
     end
 
+
     def default_eval_scope=(eval_scope)
       @eval_scope = eval_scope
     end
@@ -32,11 +33,25 @@ module Tanemaki
 
       def ready(path)
         header, *lines = CSV.read(path)
-        header.map!(&:to_sym)
-        lines.map do |line|
-          line.each_with_index.each_with_object({}) do |(col, index), result|
-            result[header[index]] = col if col
+        nameless = []
+        readiness = header.map.with_index do |name, index|
+          if name
+            name.to_sym
+          else
+            nameless.push(index)
+            nil
           end
+        end
+
+        lines.map do |line|
+          nameless_parameter = []
+          line.each_with_index.each_with_object({}) do |(col, index), result|
+            if nameless.include?(index)
+              nameless_parameter.push(col) if col
+            else
+              result[readiness[index]] = col if col
+            end
+          end.merge(namelass_parameter_array: nameless_parameter)
         end
       end
     end
@@ -75,13 +90,17 @@ module Tanemaki
 
     def seed(klass = nil, method = nil, &block)
       @named_csv.map do |row|
-        readiness = evaluated(row)
+        readiness, nameless = begin
+          result = evaluated(row.dup)
+          [result, result.delete(:namelass_parameter_array)]
+        end
+
         begin
-          (klass || @klass).send((method || @method), **readiness)
+          (klass || @klass).send((method || @method), *nameless, **readiness)
         rescue => e
           raise e unless block_given?
 
-          block.(row, e)
+          block.(e, row)
           nil
         end
       end.compact
@@ -101,19 +120,28 @@ module Tanemaki
     def evaluated(row)
       return row if @evaluate.size == 0
 
-      row.each_pair.each_with_object({}) do |(k, v), result|
-        next result[k] = v unless @evaluate.include?(k)
+      row[:namelass_parameter_array].map!.with_index do |value, index|
+        next value unless @evaluate.include?(index)
 
-        result[k] = begin
-          return eval(v) unless @eval_scope
-
-          @eval_scope.instance_eval do
-            eval(v)
-          end
-        rescue
-          v
-        end
+        do_eval(value)
       end
+
+      row.each_pair.each_with_object({}) do |(key, value), result|
+        next result[key] = value unless @evaluate.include?(key)
+
+        result[key] = do_eval(value)
+      end
+    end
+
+
+    def do_eval(value)
+      return eval(value) unless @eval_scope
+
+      @eval_scope.instance_eval do
+        eval(value)
+      end
+    rescue
+      value
     end
 
 

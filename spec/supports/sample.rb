@@ -28,4 +28,17 @@ module Sample
       raise 'required' if !@name || !@gender || !@job || !@age
     end
   end
+
+  class NamelessParam < Base
+    attr_reader :forum, :year
+
+    def initialize(forum, year, name: nil, gender: nil, job: nil, age: nil)
+      @name = name
+      @gender = gender
+      @job = job
+      @age = age
+      @forum = forum
+      @year = year
+    end
+  end
 end
